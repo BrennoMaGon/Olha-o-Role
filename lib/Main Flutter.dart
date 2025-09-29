@@ -51,20 +51,7 @@ class LoginScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Profile avatar
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.brown,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                        ),
-                        child: const Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
+                      Image(image: AssetImage('assets/images/avatar.png'), width: 120, height: 120),
                       
                       const SizedBox(height: 60),
                       
