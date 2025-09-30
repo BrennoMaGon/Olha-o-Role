@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import "main.dart";
+
 
 class CriarContaScreen extends StatefulWidget {
   const CriarContaScreen({Key? key}) : super(key: key);
