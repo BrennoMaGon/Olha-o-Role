@@ -274,9 +274,6 @@ class _TelaInicialState extends State<TelaInicial> {
 class ConfettiPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.15)
-      ..style = PaintingStyle.fill;
 
     final textPainter = TextPainter(
       textDirection: TextDirection.ltr,
