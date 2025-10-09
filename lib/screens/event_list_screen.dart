@@ -8,7 +8,12 @@ class EventListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
+      backgroundColor: Color(0xFF62216C),
       appBar: AppBar(
+        foregroundColor: Colors.white,
+        backgroundColor: Color.fromARGB(223, 76, 25, 83),
+        centerTitle: true,
         title: const Text('Eventos'),
         actions: [
           IconButton(
@@ -19,7 +24,15 @@ class EventListScreen extends StatelessWidget {
           )
         ],
       ),
-      body: Padding(
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/background.png"),
+            fit: BoxFit.cover,
+            opacity: 0.1 // Preenche todo o espaço do container
+          ),
+          
+        ),
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -27,27 +40,46 @@ class EventListScreen extends StatelessWidget {
             // Aqui seriam exibidos os eventos, usando um ListView.builder por exemplo
             const Expanded(
               child: Center(
-                child: Text('Nenhum evento por aqui ainda!'),
+                child:
+                
+                Text('Nenhum evento por aqui ainda!', style: TextStyle(color: Colors.white,fontFamily: 'ComicNeue', fontSize: 25)),
               ),
-            ),
-            ElevatedButton.icon(
-              onPressed: () {
-                 // Navega para a tela de criação de evento
-                 Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateEventScreen()));
+                ), Card(
+      // O Card já é branco e tem bordas arredondadas por padrão
+                  elevation: 4.0, // Controla a sombra
+                    margin: const EdgeInsets.all(16.0), // Espaçamento externo do card
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0), // Espaçamento interno
+        child: Column( // 1. Use uma Column para organizar os widgets verticalmente
+          mainAxisSize: MainAxisSize.min, // Faz o Card se ajustar ao conteúdo
+          children: [ // 2. Coloque sua lista de widgets aqui dentro
+            ListTile(
+              leading: const Icon(Icons.add, size: 28),
+              title: const Text('Criar Evento', style: TextStyle(fontSize: 18)),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateEventScreen()));
+                print('Criar Evento pressionado!');
               },
-              icon: const Icon(Icons.add),
-              label: const Text('Criar Evento'),
             ),
-            const SizedBox(height: 10),
-            OutlinedButton(
-              onPressed: () {
-                // Lógica para ingressar em um evento
+            ListTile(
+              leading: const Icon(Icons.arrow_forward, size: 28),
+              title: const Text('Ingressar em um evento', style: TextStyle(fontSize: 18)),
+              onTap: () {
+                print('Botão "Ingressar" pressionado!');
               },
-              child: const Text('Ingressar em um evento'),
             ),
-             const SizedBox(height: 20),
-             const Text('Amigos', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-             // ListView para amigos
+            ListTile(
+              leading: const Icon(Icons.people_outline, size: 28),
+              title: const Text('Amigos', style: TextStyle(fontSize: 18,decoration: TextDecoration.lineThrough)),
+              trailing: const Text("Em Desenvolvimento",style: TextStyle(fontSize: 12)),
+              
+            ),
+            // O seu espaçamento extra no final
+            
+          ],
+        ),
+      ),
+    ),const Padding(padding: EdgeInsets.only(bottom: 20)),
           ],
         ),
       ),
