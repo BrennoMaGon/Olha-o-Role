@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
-import 'event_list_screen.dart';
+import 'event_list_screen.dart'; // Importe o EventListScreen
+import '../models/event.dart';
 
 class InviteGuestsScreen extends StatelessWidget {
-  const InviteGuestsScreen({super.key});
+  final String eventName;
+  final String eventId;
+
+  const InviteGuestsScreen({
+    super.key,
+    required this.eventName,
+    required this.eventId,
+  });
 
   String _generateInviteLink() {
-    // Gera um código aleatório para o link
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = Random();
     final code = List.generate(8, (index) => chars[random.nextInt(chars.length)]).join();
@@ -152,15 +159,22 @@ class InviteGuestsScreen extends StatelessWidget {
             ),
             const Spacer(),
             
-            // Botão Finalizar
+            // Botão Finalizar - CORRIGIDO
             ElevatedButton(
               onPressed: () {
+                // Cria o objeto Event com os dados do evento
+                final newEvent = Event(
+                  id: eventId,
+                  name: eventName,
+                  createdAt: DateTime.now(),
+                );
+                // Navega de volta para o EventListScreen passando o evento
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const EventListScreen(),
+                    builder: (context) => EventListScreen.withEvent(newEvent),
                   ),
-                  (route) => false,
+                  (route) => false, // Remove todas as telas da pilha
                 );
               },
               style: ElevatedButton.styleFrom(

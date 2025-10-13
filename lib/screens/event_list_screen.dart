@@ -1,8 +1,31 @@
 import 'package:flutter/material.dart';
 import 'create_event_screen.dart';
+import '../models/event.dart';
+class EventListScreen extends StatefulWidget {
+  final Event? initialEvent; // Parâmetro opcional para evento inicial
 
-class EventListScreen extends StatelessWidget {
-  const EventListScreen({super.key});
+  const EventListScreen({super.key, this.initialEvent});
+
+  // Construtor nomeado para criar a tela com um evento
+  const EventListScreen.withEvent(Event event, {super.key}) 
+      : initialEvent = event;
+
+  @override
+  State<EventListScreen> createState() => _EventListScreenState();
+}
+
+class _EventListScreenState extends State<EventListScreen> {
+  // Lista de eventos - inicialmente vazia
+  List<Event> events = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Se foi passado um evento inicial, adiciona à lista
+    if (widget.initialEvent != null) {
+      events.add(widget.initialEvent!);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,16 +50,13 @@ class EventListScreen extends StatelessWidget {
         ],
       ),
       
-      // 1. Adicione a propriedade 'drawer' aqui
       drawer: Drawer(
         child: ListView(
-          // Importante: Remova qualquer padding do ListView.
           padding: EdgeInsets.zero,
           children: <Widget>[
-            // 2. DrawerHeader para o cabeçalho (opcional, mas recomendado)
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 211, 173, 92), // Cor de fundo do cabeçalho
+                color: Color.fromARGB(255, 211, 173, 92),
               ),
               child: Text(
                 'Menu Principal',
@@ -48,13 +68,10 @@ class EventListScreen extends StatelessWidget {
               ),
             ),
             
-            // 3. Itens do menu usando ListTile
             ListTile(
               leading: const Icon(Icons.home),
               title: const Text('Início'),
               onTap: () {
-                // Lógica para navegar para a tela inicial
-                // Fecha o drawer após o toque
                 Navigator.pop(context);
               },
             ),
@@ -62,7 +79,6 @@ class EventListScreen extends StatelessWidget {
               leading: const Icon(Icons.person),
               title: const Text('Perfil'),
               onTap: () {
-                // Lógica para navegar para a tela de perfil
                 Navigator.pop(context);
               },
             ),
@@ -70,7 +86,6 @@ class EventListScreen extends StatelessWidget {
               leading: const Icon(Icons.settings),
               title: const Text('Configurações'),
               onTap: () {
-                // Lógica para navegar para a tela de configurações
                 Navigator.pop(context);
               },
             ),
@@ -79,7 +94,6 @@ class EventListScreen extends StatelessWidget {
       ),
 
       body: Container(
-        // O resto do seu código do body permanece o mesmo...
         decoration: const BoxDecoration(
           image: DecorationImage(
               image: AssetImage("assets/background.png"),
@@ -90,15 +104,25 @@ class EventListScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Expanded(
-              child: Center(
-                child: Text('Nenhum evento por aqui ainda!',
-                    style: TextStyle(
-                        color: Color.fromARGB(255, 63, 39, 28),
-                        fontFamily: 'Itim',
-                        fontSize: 25)),
-              ),
+            // Área que mostra eventos ou mensagem de "nenhum evento"
+            Expanded(
+              child: events.isEmpty
+                  ? const Center(
+                      child: Text('Nenhum evento por aqui ainda!',
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 63, 39, 28),
+                              fontFamily: 'Itim',
+                              fontSize: 25)),
+                    )
+                  : ListView.builder(
+                      itemCount: events.length,
+                      itemBuilder: (context, index) {
+                        return _buildEventCard(events[index]);
+                      },
+                    ),
             ),
+            
+            // Cards de ações (criar evento, ingressar, etc.)
             Card(
               elevation: 4.0,
               margin: const EdgeInsets.all(16.0),
@@ -112,11 +136,7 @@ class EventListScreen extends StatelessWidget {
                       title: const Text('Criar Evento',
                           style: TextStyle(fontSize: 18)),
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const CreateEventScreen()));
-                        print('Criar Evento pressionado!');
+                        _navigateToCreateEvent(context);
                       },
                     ),
                     ListTile(
@@ -143,6 +163,110 @@ class EventListScreen extends StatelessWidget {
             const Padding(padding: EdgeInsets.only(bottom: 20)),
           ],
         ),
+      ),
+    );
+  }
+
+  // Método para construir o card do evento
+  Widget _buildEventCard(Event event) {
+    return Card(
+      elevation: 4.0,
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(16.0),
+        leading: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 211, 173, 92),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: const Icon(
+            Icons.event,
+            color: Color.fromARGB(255, 63, 39, 28),
+            size: 30,
+          ),
+        ),
+        title: Text(
+          event.name,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 63, 39, 28),
+            fontFamily: 'Itim',
+          ),
+        ),
+        subtitle: Text(
+          'ID: ${event.id}',
+          style: const TextStyle(
+            color: Colors.grey,
+            fontFamily: 'Itim',
+          ),
+        ),
+        trailing: const Icon(
+          Icons.arrow_forward_ios,
+          color: Color.fromARGB(255, 63, 39, 28),
+          size: 16,
+        ),
+        onTap: () {
+          _navigateToEventDetails(event);
+        },
+      ),
+    );
+  }
+
+  // Método para navegar para a tela de criação de evento
+  void _navigateToCreateEvent(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CreateEventScreen()),
+    );
+    
+    // Se um evento foi criado, adicione à lista
+    if (result != null && result is Event) {
+      setState(() {
+        events.add(result);
+      });
+    }
+  }
+
+  // Método para navegar para os detalhes do evento
+  void _navigateToEventDetails(Event event) {
+    print('Evento clicado: ${event.name} (ID: ${event.id})');
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 230, 210, 185),
+        title: Text(
+          event.name,
+          style: const TextStyle(
+            color: Color.fromARGB(255, 63, 39, 28),
+            fontFamily: 'Itim',
+          ),
+        ),
+        content: Text(
+          'ID do evento: ${event.id}\nCriado em: ${event.createdAt.toString().split(' ')[0]}',
+          style: const TextStyle(
+            color: Color.fromARGB(255, 63, 39, 28),
+            fontFamily: 'Itim',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Fechar',
+              style: TextStyle(
+                color: Color.fromARGB(255, 63, 39, 28),
+                fontFamily: 'Itim',
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
