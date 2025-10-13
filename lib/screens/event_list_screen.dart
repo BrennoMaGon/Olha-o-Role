@@ -235,39 +235,185 @@ class _EventListScreenState extends State<EventListScreen> {
 
   // Método para navegar para os detalhes do evento
   void _navigateToEventDetails(Event event) {
-    print('Evento clicado: ${event.name} (ID: ${event.id})');
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color.fromARGB(255, 230, 210, 185),
-        title: Text(
-          event.name,
-          style: const TextStyle(
-            color: Color.fromARGB(255, 63, 39, 28),
-            fontFamily: 'Itim',
-          ),
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: const Color.fromARGB(255, 230, 210, 185),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      title: Text(
+        event.name,
+        style: const TextStyle(
+          color: Color.fromARGB(255, 63, 39, 28),
+          fontFamily: 'Itim',
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
         ),
-        content: Text(
-          'ID do evento: ${event.id}\nCriado em: ${event.createdAt.toString().split(' ')[0]}',
-          style: const TextStyle(
-            color: Color.fromARGB(255, 63, 39, 28),
-            fontFamily: 'Itim',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Fechar',
-              style: TextStyle(
-                color: Color.fromARGB(255, 63, 39, 28),
-                fontFamily: 'Itim',
+        textAlign: TextAlign.center,
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Informações básicas do evento
+            _buildInfoRow('📅 Data do Evento:', event.eventDate),
+            _buildInfoRow('👥 Quantidade de Pessoas:', '${event.peopleCount} pessoas'),
+            _buildInfoRow('📝 Descrição:', event.description),
+            _buildInfoRow('🆔 ID do Evento:', event.id),
+            _buildInfoRow('📋 Data de Criação:', 
+              '${event.createdAt.day.toString().padLeft(2, '0')}/'
+              '${event.createdAt.month.toString().padLeft(2, '0')}/'
+              '${event.createdAt.year}'
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Lista de itens
+            if (event.items.isNotEmpty) ...[
+              const Text(
+                '🛒 Itens do Evento:',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 63, 39, 28),
+                  fontFamily: 'Itim',
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+              const SizedBox(height: 8),
+              
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: event.items.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final item = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 211, 173, 92),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${index + 1}',
+                                style: const TextStyle(
+                                  color: Color.fromARGB(255, 63, 39, 28),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              item.name,
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 63, 39, 28),
+                                fontFamily: 'Itim',
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 211, 173, 92),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              '${item.quantity}x',
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 63, 39, 28),
+                                fontFamily: 'Itim',
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ] else ...[
+              const Text(
+                '📦 Nenhum item adicionado ao evento',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Itim',
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          style: TextButton.styleFrom(
+            foregroundColor: const Color.fromARGB(255, 63, 39, 28),
+          ),
+          child: const Text(
+            'Fechar',
+            style: TextStyle(
+              fontFamily: 'Itim',
+              fontSize: 16,
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
+// Método auxiliar para construir linhas de informação
+Widget _buildInfoRow(String label, String value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 6),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 140,
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Color.fromARGB(255, 63, 39, 28),
+              fontFamily: 'Itim',
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              color: Color.fromARGB(255, 63, 39, 28),
+              fontFamily: 'Itim',
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 }
