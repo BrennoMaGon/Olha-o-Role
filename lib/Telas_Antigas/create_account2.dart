@@ -25,7 +25,6 @@ class CreateAccountScreen extends StatelessWidget {
     const Color primaryColor = Color(0xFF5A6BF8); // Cor principal roxa (aproximada)
     const Color backgroundColor = Color(0xFF6AD9E2); // Cor de fundo azul (aproximada)
     const Color avatarBackgroundColor = Color(0xFFD4C2FF);
-    const Color avatarIconColor = Color(0xFF5A6BF8);
 
 
     return Scaffold(
