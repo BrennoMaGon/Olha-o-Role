@@ -1,34 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'create_event_screen.dart';
 import '../models/event.dart';
+
 class EventListScreen extends StatefulWidget {
-  final Event? initialEvent; // Parâmetro opcional para evento inicial
-
-  const EventListScreen({super.key, this.initialEvent});
-
-  // Construtor nomeado para criar a tela com um evento
-  const EventListScreen.withEvent(Event event, {super.key}) 
-      : initialEvent = event;
+  const EventListScreen({super.key});
 
   @override
   State<EventListScreen> createState() => _EventListScreenState();
 }
 
 class _EventListScreenState extends State<EventListScreen> {
-  // Lista de eventos - inicialmente vazia
-  List<Event> events = [];
+  // Variável para guardar a referência ao Future que abre a caixa.
+  // Isso garante que a operação de abrir a caixa só será executada UMA VEZ.
+  late final Future<Box<Event>> _eventsBoxFuture;
 
   @override
   void initState() {
     super.initState();
-    // Se foi passado um evento inicial, adiciona à lista
-    if (widget.initialEvent != null) {
-      events.add(widget.initialEvent!);
+    // Inicializamos o Future aqui, no initState.
+    _eventsBoxFuture = _openEventsBox();
+  }
+
+  /// Método auxiliar para abrir a caixa de eventos de forma segura.
+  Future<Box<Event>> _openEventsBox() async {
+    if (Hive.isBoxOpen('events')) {
+      return Hive.box<Event>('events');
+    } else {
+      return await Hive.openBox<Event>('events');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // O seu método build original está correto e permanece aqui...
+    // Ele usa o FutureBuilder e o ValueListenableBuilder para construir a lista
+    // e chama o _buildEventCard para cada item.
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 230, 210, 185),
       appBar: AppBar(
@@ -40,16 +47,7 @@ class _EventListScreenState extends State<EventListScreen> {
                 color: Color.fromARGB(255, 63, 39, 28),
                 fontFamily: 'Itim',
                 fontSize: 30)),
-        actions: [
-          IconButton(
-            onPressed: () {
-              // Lógica para menu ou configurações
-            },
-            icon: const Icon(Icons.more_vert),
-          )
-        ],
       ),
-      
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -67,7 +65,6 @@ class _EventListScreenState extends State<EventListScreen> {
                 ),
               ),
             ),
-            
             ListTile(
               leading: const Icon(Icons.home),
               title: const Text('Início'),
@@ -92,7 +89,6 @@ class _EventListScreenState extends State<EventListScreen> {
           ],
         ),
       ),
-
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -104,25 +100,50 @@ class _EventListScreenState extends State<EventListScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Área que mostra eventos ou mensagem de "nenhum evento"
             Expanded(
-              child: events.isEmpty
-                  ? const Center(
-                      child: Text('Nenhum evento por aqui ainda!',
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 63, 39, 28),
-                              fontFamily: 'Itim',
-                              fontSize: 25)),
-                    )
-                  : ListView.builder(
-                      itemCount: events.length,
-                      itemBuilder: (context, index) {
-                        return _buildEventCard(events[index]);
-                      },
-                    ),
+              child: FutureBuilder<Box<Event>>(
+                future: _eventsBoxFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                        child: Text(
+                            'Erro ao carregar eventos: ${snapshot.error}'));
+                  }
+
+                  final eventBox = snapshot.data!;
+                  return ValueListenableBuilder(
+                    valueListenable: eventBox.listenable(),
+                    builder: (context, Box<Event> box, _) {
+                      final events = box.values.toList().cast<Event>();
+
+                      if (events.isEmpty) {
+                        return const Center(
+                          child: Text('Nenhum evento por aqui ainda!',
+                              style: TextStyle(
+                                  color: Color.fromARGB(255, 63, 39, 28),
+                                  fontFamily: 'Itim',
+                                  fontSize: 25)),
+                        );
+                      }
+                      
+                      events.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+                      return ListView.builder(
+                        itemCount: events.length,
+                        itemBuilder: (context, index) {
+                          // Chamando a versão CORRETA e ÚNICA do _buildEventCard
+                          return _buildEventCard(events[index]);
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-            
-            // Cards de ações (criar evento, ingressar, etc.)
             Card(
               elevation: 4.0,
               margin: const EdgeInsets.all(16.0),
@@ -136,7 +157,11 @@ class _EventListScreenState extends State<EventListScreen> {
                       title: const Text('Criar Evento',
                           style: TextStyle(fontSize: 18)),
                       onTap: () {
-                        _navigateToCreateEvent(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const CreateEventScreen()),
+                        );
                       },
                     ),
                     ListTile(
@@ -153,8 +178,8 @@ class _EventListScreenState extends State<EventListScreen> {
                           style: TextStyle(
                               fontSize: 18,
                               decoration: TextDecoration.lineThrough)),
-                      trailing:
-                          Text("Em Desenvolvimento", style: TextStyle(fontSize: 12)),
+                      trailing: Text("Em Desenvolvimento",
+                          style: TextStyle(fontSize: 12)),
                     ),
                   ],
                 ),
@@ -167,7 +192,7 @@ class _EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  // Método para construir o card do evento
+  // MANTEMOS APENAS ESTA VERSÃO do _buildEventCard
   Widget _buildEventCard(Event event) {
     return Card(
       elevation: 4.0,
@@ -199,12 +224,25 @@ class _EventListScreenState extends State<EventListScreen> {
             fontFamily: 'Itim',
           ),
         ),
-        subtitle: Text(
-          'ID: ${event.id}',
-          style: const TextStyle(
-            color: Colors.grey,
-            fontFamily: 'Itim',
-          ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              'Data: ${event.eventDate ?? "Não definida"}',
+              style: const TextStyle(
+                color: Colors.black54,
+                fontFamily: 'Itim',
+              ),
+            ),
+            Text(
+              'Itens na lista: ${event.items.length}',
+              style: const TextStyle(
+                color: Colors.black54,
+                fontFamily: 'Itim',
+              ),
+            ),
+          ],
         ),
         trailing: const Icon(
           Icons.arrow_forward_ios,
@@ -218,25 +256,8 @@ class _EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  // Método para navegar para a tela de criação de evento
-  void _navigateToCreateEvent(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CreateEventScreen()),
-    );
-    
-    // Se um evento foi criado, adicione à lista
-    if (result != null && result is Event) {
-      setState(() {
-        events.add(result);
-      });
-    }
-  }
-
-  // Método para navegar para os detalhes do evento
+  // Método ATUALIZADO para mostrar todos os detalhes do evento
   void _navigateToEventDetails(Event event) {
-    print('Evento clicado: ${event.name} (ID: ${event.id})');
-    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -246,13 +267,44 @@ class _EventListScreenState extends State<EventListScreen> {
           style: const TextStyle(
             color: Color.fromARGB(255, 63, 39, 28),
             fontFamily: 'Itim',
+            fontWeight: FontWeight.bold,
           ),
         ),
-        content: Text(
-          'ID do evento: ${event.id}\nCriado em: ${event.createdAt.toString().split(' ')[0]}',
-          style: const TextStyle(
-            color: Color.fromARGB(255, 63, 39, 28),
-            fontFamily: 'Itim',
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text(
+                'Descrição: ${event.description ?? "Nenhuma descrição"}',
+                style: const TextStyle(fontFamily: 'Itim'),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Data do Evento: ${event.eventDate ?? "Não definida"}',
+                style: const TextStyle(fontFamily: 'Itim'),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Quantidade de Pessoas: ${event.peopleCount ?? "Não informado"}',
+                style: const TextStyle(fontFamily: 'Itim'),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Lista de Itens:',
+                style: TextStyle(fontFamily: 'Itim', fontWeight: FontWeight.bold),
+              ),
+              const Divider(),
+              ...event.items.map(
+                (item) => Text(
+                  '• ${item.name} (Qtd: ${item.quantity})',
+                  style: const TextStyle(fontFamily: 'Itim'),
+                ),
+              ),
+              if (event.items.isEmpty)
+                const Text(
+                  'Nenhum item na lista.',
+                  style: TextStyle(fontFamily: 'Itim', fontStyle: FontStyle.italic),
+                ),
+            ],
           ),
         ),
         actions: [

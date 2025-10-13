@@ -189,36 +189,23 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   // Gera um ID único para o evento
                   final eventId = _generateEventId();
                   
-                  // Navega para AddItemsScreen passando os dados do evento
+                  // NAVEGA PARA A PRÓXIMA TELA PASSANDO TODOS OS DADOS
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => AddItemsScreen(
-                        eventName: _titleController.text,
                         eventId: eventId,
+                        eventName: _titleController.text,
+                        eventDescription: _descriptionController.text, // NOVO
+                        eventDate: _dateController.text,               // NOVO
+                        peopleCount: int.tryParse(_peopleCountController.text) ?? 0, // NOVO
                       ),
                     ),
                   );
                 }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color.fromARGB(255, 63, 39, 28),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Avançar',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )
-          ],
+              }, child: null,
+        ),
+        ],
         ),
       ),
     );
