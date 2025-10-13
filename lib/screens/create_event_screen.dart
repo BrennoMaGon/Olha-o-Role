@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'add_items_screen.dart';
+import 'dart:math'; // Adicione este import para gerar ID aleatório
 
 class CreateEventScreen extends StatefulWidget {
   const CreateEventScreen({super.key});
@@ -14,6 +15,60 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   final _descriptionController = TextEditingController();
   final _peopleCountController = TextEditingController();
   final _dateController = TextEditingController();
+
+  // Método para gerar ID único do evento
+  String _generateEventId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random();
+    return List.generate(6, (index) => chars[random.nextInt(chars.length)]).join();
+  }
+
+  // Método para validar os campos
+  bool _validateFields() {
+    if (_titleController.text.isEmpty) {
+      _showErrorDialog('Por favor, insira um título para o evento');
+      return false;
+    }
+    if (_dateController.text.isEmpty) {
+      _showErrorDialog('Por favor, insira uma data para o evento');
+      return false;
+    }
+    return true;
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 230, 210, 185),
+        title: const Text(
+          'Atenção',
+          style: TextStyle(
+            color: Color.fromARGB(255, 63, 39, 28),
+            fontFamily: 'Itim',
+          ),
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Color.fromARGB(255, 63, 39, 28),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'OK',
+              style: TextStyle(
+                color: Color.fromARGB(255, 63, 39, 28),
+                fontFamily: 'Itim',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -51,11 +106,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 labelText: 'Título do Evento',
                 labelStyle: const TextStyle(color: Colors.black54),
                 prefixIcon: const Icon(Icons.festival, color: Colors.black54),
-                // Cor da linha quando o campo está em foco
                 focusedBorder: const UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.white, width: 2),
                 ),
-                // Cor da linha quando o campo não está em foco
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey.shade400),
                 ),
@@ -97,7 +150,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
               ),
               keyboardType: TextInputType.number,
-              // VALIDAÇÃO: Permite apenas números
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
               ],
@@ -122,7 +174,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
               ),
               keyboardType: TextInputType.number,
-              // VALIDAÇÃO: Permite apenas números e barra, com máximo de 10 caracteres
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
                 LengthLimitingTextInputFormatter(10),
@@ -131,12 +182,24 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             ),
             const SizedBox(height: 40),
             
+            // Botão Avançar - ATUALIZADO
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AddItemsScreen()),
-                );
+                if (_validateFields()) {
+                  // Gera um ID único para o evento
+                  final eventId = _generateEventId();
+                  
+                  // Navega para AddItemsScreen passando os dados do evento
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddItemsScreen(
+                        eventName: _titleController.text,
+                        eventId: eventId,
+                      ),
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,

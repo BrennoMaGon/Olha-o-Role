@@ -10,7 +10,14 @@ class ItemData {
 }
 
 class AddItemsScreen extends StatefulWidget {
-  const AddItemsScreen({super.key});
+  final String eventName; // Recebe o nome do evento
+  final String eventId;   // Recebe o ID do evento
+
+  const AddItemsScreen({
+    super.key,
+    required this.eventName,
+    required this.eventId,
+  });
 
   @override
   State<AddItemsScreen> createState() => _AddItemsScreenState();
@@ -336,13 +343,16 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
             ),
             const SizedBox(height: 20),
             
-            // Botão Avançar
+            // Botão Avançar - CORRIGIDO
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const InviteGuestsScreen(),
+                    builder: (context) => InviteGuestsScreen(
+                      eventName: widget.eventName, // Passa o nome do evento
+                      eventId: widget.eventId,     // Passa o ID do evento
+                    ),
                   ),
                 );
               },
