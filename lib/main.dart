@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'models/event.dart'; // Importe seus modelos
 import 'screens/event_list_screen.dart';
+import 'screens/login_screen.dart';
 
 void main() async {
   // Garante que o Flutter está inicializado
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const EventListScreen(),
+      home: const LoginScreen(),
     );
   }
 }

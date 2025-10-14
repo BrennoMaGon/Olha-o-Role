@@ -106,7 +106,7 @@ class _EventListScreenState extends State<EventListScreen> {
                 color: Color.fromARGB(255, 211, 173, 92),
               ),
               child: Text(
-                'Menu Principal',
+                'Olha o Rolê',
                 style: TextStyle(
                   color: Color.fromARGB(255, 63, 39, 28),
                   fontSize: 24,
@@ -123,17 +123,13 @@ class _EventListScreenState extends State<EventListScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.person),
-              title: const Text('Perfil'),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              title: const Text('Perfil - em breve',style: TextStyle(decoration: TextDecoration.lineThrough),),
+              
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Configurações'),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              title: const Text('Configurações - em breve' ,style: TextStyle(decoration: TextDecoration.lineThrough),),
+              
             ),
           ],
         ),
@@ -216,10 +212,9 @@ class _EventListScreenState extends State<EventListScreen> {
                     ListTile(
                       leading: const Icon(Icons.arrow_forward, size: 28),
                       title: const Text('Ingressar em um evento',
-                          style: TextStyle(fontSize: 18)),
-                      onTap: () {
-                        print('Botão "Ingressar" pressionado!');
-                      },
+                          style: TextStyle(fontSize: 18, decoration: TextDecoration.lineThrough)),
+                      trailing: Text("Em Desenvolvimento",
+                          style: TextStyle(fontSize: 12)),
                     ),
                     const ListTile(
                       leading: Icon(Icons.people_outline, size: 28),
@@ -241,7 +236,7 @@ class _EventListScreenState extends State<EventListScreen> {
     );
   }
 
-  // MANTEMOS APENAS ESTA VERSÃO do _buildEventCard
+  
   Widget _buildEventCard(Event event) {
     return Card(
       elevation: 4.0,

@@ -211,7 +211,7 @@ class _InviteGuestsScreenState extends State<InviteGuestsScreen> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
+                    backgroundColor: Color.fromARGB(255, 211, 173, 92),
                     foregroundColor: const Color.fromARGB(255, 63, 39, 28),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -221,7 +221,7 @@ class _InviteGuestsScreenState extends State<InviteGuestsScreen> {
               ),
               child: const Text(
                 'Finalizar',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
               ),
             ),
           ],

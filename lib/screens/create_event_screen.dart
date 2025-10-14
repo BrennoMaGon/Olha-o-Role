@@ -203,7 +203,25 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     ),
                   );
                 }
-              }, child: null,
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: const Color.fromARGB(255, 63, 39, 28),
+                backgroundColor: Color.fromARGB(255, 211, 173, 92),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'Itim',
+                ),
+                
+              ), child: Text( 'Avançar',
+              style: const TextStyle(
+                fontSize: 18,
+                fontFamily: 'Itim',
+              ),
+              ),
         ),
         ],
         ),
