@@ -1,6 +1,5 @@
-name: Olha o Rolê
-version: 1.0.0+1
-description: "A new Flutter project."
+name: Olha_o_Role
+description: "Um app para criar eventos e momentos."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -75,10 +74,10 @@ flutter:
         - asset: assets/fonts/ComicNeue-Bold.ttf
           weight: 700 # 700 é o peso para negrito (bold)
 
-  flutter_launcher_icons:
-  android: "launcher_icon" # Nome do ícone no Android, ou 'true' para o padrão
-  ios: true
-  image_path: "Assets/Logo/logo.jpg"
+flutter_launcher_icons:
+    android: "launcher_icon" # Nome do ícone no Android, ou 'true' para o padrão
+    ios: true
+    image_path: "Assets/logo.jpg"
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
