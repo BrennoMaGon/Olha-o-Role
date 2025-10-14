@@ -31,6 +31,55 @@ class _EventListScreenState extends State<EventListScreen> {
     }
   }
 
+  Future<void> _showDeleteConfirmationDialog(Event event) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // O usuário deve tocar em um botão para fechar.
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color.fromARGB(255, 230, 210, 185),
+          title: const Text(
+            'Confirmar Exclusão',
+            style: TextStyle(fontFamily: 'Itim'),
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                  'Você tem certeza que deseja excluir o evento "${event.name}"?',
+                  style: const TextStyle(fontFamily: 'Itim'),
+                ),
+                const Text(
+                  '\nEsta ação não pode ser desfeita.',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancelar', style: TextStyle(fontFamily: 'Itim')),
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red.shade700,
+              ),
+              child: const Text('Excluir', style: TextStyle(fontFamily: 'Itim')),
+              onPressed: () {
+                // A MÁGICA ACONTECE AQUI!
+                event.delete();
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // O seu método build original está correto e permanece aqui...
@@ -257,48 +306,152 @@ class _EventListScreenState extends State<EventListScreen> {
   }
 
   // Método ATUALIZADO para mostrar todos os detalhes do evento
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.black54, size: 20),
+          const SizedBox(width: 12),
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Itim',
+              color: Color.fromARGB(255, 63, 39, 28),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontFamily: 'Itim',
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // MÉTODO _navigateToEventDetails TOTALMENTE ATUALIZADO
   void _navigateToEventDetails(Event event) {
+    // Formata a data de criação para o padrão DD/MM/AAAA
+    final formattedCreationDate = 
+        "${event.createdAt.day.toString().padLeft(2, '0')}/"
+        "${event.createdAt.month.toString().padLeft(2, '0')}/"
+        "${event.createdAt.year}";
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color.fromARGB(255, 230, 210, 185),
-        title: Text(
-          event.name,
-          style: const TextStyle(
-            color: Color.fromARGB(255, 63, 39, 28),
-            fontFamily: 'Itim',
-            fontWeight: FontWeight.bold,
+        backgroundColor: const Color.fromARGB(255, 245, 235, 220), // Um tom um pouco mais claro
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        // Título centralizado com o nome do evento
+        title: Center(
+          child: Text(
+            event.name,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: 'Itim',
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              color: Color.fromARGB(255, 63, 39, 28),
+            ),
           ),
         ),
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
-              Text(
-                'Descrição: ${event.description ?? "Nenhuma descrição"}',
-                style: const TextStyle(fontFamily: 'Itim'),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Data do Evento: ${event.eventDate ?? "Não definida"}',
-                style: const TextStyle(fontFamily: 'Itim'),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Quantidade de Pessoas: ${event.peopleCount ?? "Não informado"}',
-                style: const TextStyle(fontFamily: 'Itim'),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Lista de Itens:',
-                style: TextStyle(fontFamily: 'Itim', fontWeight: FontWeight.bold),
-              ),
               const Divider(),
-              ...event.items.map(
-                (item) => Text(
-                  '• ${item.name} (Qtd: ${item.quantity})',
-                  style: const TextStyle(fontFamily: 'Itim'),
+              const SizedBox(height: 10),
+
+              // Usando nosso helper widget para cada informação
+              _buildInfoRow(Icons.calendar_today, 'Data do Evento:', event.eventDate ?? "Não definida"),
+              _buildInfoRow(Icons.people, 'Quantidade de Pessoas:', '${event.peopleCount ?? 0} pessoas'),
+              _buildInfoRow(Icons.description, 'Descrição:', event.description ?? "Nenhuma"),
+              _buildInfoRow(Icons.vpn_key, 'ID do Evento:', event.id),
+              _buildInfoRow(Icons.create, 'Data de Criação:', formattedCreationDate),
+
+              const SizedBox(height: 20),
+
+              // Seção de Itens do Evento
+              const Text(
+                'Itens do Evento:',
+                style: TextStyle(
+                  fontFamily: 'Itim',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Color.fromARGB(255, 63, 39, 28),
                 ),
               ),
+              const SizedBox(height: 10),
+
+              // Mapeando a lista de itens para o novo widget de item
+              ...event.items.map((item) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        // Ícone do item
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 255, 226, 169), // Cor de fundo do ícone
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            // Pega a primeira letra do item ou um emoji
+                            item.name.isNotEmpty ? item.name[0].toUpperCase() : '🛒',
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.brown),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Nome do item
+                        Expanded(
+                          child: Text(
+                            item.name,
+                            style: const TextStyle(fontFamily: 'Itim', fontSize: 16),
+                          ),
+                        ),
+                        // "Badge" de quantidade
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 230, 210, 185),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${item.quantity}x',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 63, 39, 28),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
               if (event.items.isEmpty)
                 const Text(
                   'Nenhum item na lista.',
@@ -307,16 +460,21 @@ class _EventListScreenState extends State<EventListScreen> {
             ],
           ),
         ),
+        actionsAlignment: MainAxisAlignment.end,
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         actions: [
+          // Os botões de ação continuam aqui
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: Colors.red.shade700),
+            onPressed: () {
+              Navigator.pop(context);
+              _showDeleteConfirmationDialog(event);
+            },
+            child: const Text('Excluir', style: TextStyle(fontFamily: 'Itim')),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Fechar',
-              style: TextStyle(
-                color: Color.fromARGB(255, 63, 39, 28),
-                fontFamily: 'Itim',
-              ),
-            ),
+            child: const Text('Fechar', style: TextStyle(fontFamily: 'Itim', color: Color.fromARGB(255, 63, 39, 28))),
           ),
         ],
       ),
