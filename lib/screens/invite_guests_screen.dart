@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
-import 'event_list_screen.dart'; // Importe o EventListScreen
-import '../models/event.dart'; // Certifique-se de que Event e EventItem estão aqui
+// O import do EventListScreen não é estritamente necessário se você fizer o pop,
+// mas vamos mantê-lo para referência ao construtor, caso precise.
+import 'event_list_screen.dart'; 
+import '../models/event.dart'; 
 
 class InviteGuestsScreen extends StatelessWidget {
   final String eventName;
   final String eventDescription;
   final int eventPeopleCount;
-  // Está recebendo um DateTime, que deve vir da AddItemsScreen
   final DateTime eventDate; 
   final String eventId;
   final List<EventItem> eventItems; 
@@ -18,24 +19,22 @@ class InviteGuestsScreen extends StatelessWidget {
     required this.eventName,
     required this.eventDescription,
     required this.eventPeopleCount,
-    required this.eventDate, // Recebe o DateTime
+    required this.eventDate, 
     required this.eventId,
     required this.eventItems, 
   });
   
   String _generateInviteLink() {
-    // Lógica para gerar um código aleatório de 8 caracteres
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = Random();
     final code = List.generate(8, (index) => chars[random.nextInt(chars.length)]).join();
-    // Utiliza o código no link
     return 'https://olhaorole.app/evento/$code';
   }
 
   void _showLinkDialog(BuildContext context) {
+    // ... (Mantém o código do showLinkDialog, que está correto)
     final link = _generateInviteLink();
     
-    // Diálogo estilizado para mostrar e copiar o link
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -60,7 +59,6 @@ class InviteGuestsScreen extends StatelessWidget {
               color: Color.fromARGB(255, 211, 173, 92),
             ),
             const SizedBox(height: 20),
-            // Contêiner para exibir o link de forma selecionável
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -77,12 +75,9 @@ class InviteGuestsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            // Botão para copiar o link
             ElevatedButton.icon(
               onPressed: () {
-                // Copia o link para a área de transferência
                 Clipboard.setData(ClipboardData(text: link));
-                // Exibe uma SnackBar de confirmação
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: const Text('Link copiado para a área de transferência!'),
@@ -111,7 +106,6 @@ class InviteGuestsScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          // Botão para fechar o diálogo
           TextButton(
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(
@@ -131,7 +125,7 @@ class InviteGuestsScreen extends StatelessWidget {
       appBar: AppBar(
         foregroundColor: const Color.fromARGB(255, 63, 39, 28),
         backgroundColor: const Color.fromARGB(255, 211, 173, 92),
-        title: const Text('Adicione Convidados'), // Título mais descritivo
+        title: const Text('Adicione Convidados'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -140,7 +134,7 @@ class InviteGuestsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Icon(
-              Icons.people_alt, // Ícone que representa convidados
+              Icons.people_alt,
               size: 100,
               color: Color.fromARGB(255, 211, 173, 92),
             ),
@@ -175,7 +169,6 @@ class InviteGuestsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-             // Mensagem informativa
             const Text(
               'O link de convite permite que seus amigos entrem no evento.',
               textAlign: TextAlign.center,
@@ -190,32 +183,51 @@ class InviteGuestsScreen extends StatelessWidget {
             // Botão Finalizar
             ElevatedButton(
               onPressed: () {
-                // Cria o objeto Event COMPLETO com todos os dados
+                // 1. Cria o objeto Event COMPLETO
                 final newEvent = Event(
                   id: eventId,
                   name: eventName,
                   description: eventDescription, 
                   peopleCount: eventPeopleCount, 
-                  // CORREÇÃO: Converte o DateTime (recebido) para a String "AAAA-MM-DD"
-                  // esperada pelo modelo 'Event'
+                  // Garante o formato 'AAAA-MM-DD'
                   eventDate: eventDate.toIso8601String().substring(0, 10), 
                   createdAt: DateTime.now(),
                   items: eventItems, 
                 );
                 
-                // Navega de volta para o EventListScreen passando o evento e removendo
-                // todas as telas anteriores da pilha.
+                // 2. Retorna o novo evento para a tela anterior (CreateEventScreen ou AddItemsScreen)
+                // Usando `Navigator.pop` com o resultado.
+                // Isso sinaliza que o fluxo de criação terminou com sucesso.
+                // As telas anteriores na pilha devem ter o código para tratar este resultado
+                // e, em seguida, fazer o pop de volta para a EventListScreen.
+                // IMPORTANTE: Se esta é a última tela antes da EventListScreen, 
+                // você precisa garantir que ela volte para a raiz.
+
+                // Opção mais simples (menos linhas, exige ajuste nas outras telas):
+                // Navigator.pop(context, newEvent); 
+
+                // Opção que força o retorno à EventListScreen (sua raiz) e passa o evento:
+                // Usaremos pushAndRemoveUntil, mas a EventListScreen deve usar o 
+                // construtor padrão, e você deve retornar o evento para a Home.
+
+                // Melhor Opção para o seu caso (Zerar a pilha e ir para a Home):
+                // Retorna para a tela de lista de eventos e REMOVE TODAS as telas 
+                // de criação da pilha, passando o evento para ser adicionado.
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
+                    // Passa o novo evento para que EventListScreen o adicione à lista carregada.
                     builder: (context) => EventListScreen.withEvent(newEvent),
                   ),
-                  (route) => false, // Remove todas as telas da pilha
+                  (route) => route.isFirst, // Mantém a tela raiz/home (se EventListScreen for a primeira)
                 );
+                
+                // NOTA: Se EventListScreen não for a primeira (isFirst), mude para `(route) => false`
+                // O código na EventListScreen está preparado para receber e salvar o `initialEvent`.
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 211, 173, 92), // Cor destacada
-                foregroundColor: const Color.fromARGB(255, 63, 39, 28),
+                backgroundColor: const Color.fromARGB(255, 211, 173, 92),
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -227,7 +239,7 @@ class InviteGuestsScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: Color.fromARGB(255, 63, 39, 28),
                 ),
               ),
             ),
