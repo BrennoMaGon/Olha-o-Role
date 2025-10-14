@@ -24,7 +24,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   }
 
   // Método para validar os campos
-  bool _validateFields() {
+ bool _validateFields() {
     if (_titleController.text.isEmpty) {
       _showErrorDialog('Por favor, insira um título para o evento');
       return false;
@@ -33,9 +33,77 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       _showErrorDialog('Por favor, insira uma data para o evento');
       return false;
     }
+    
+    // Valida se a data é válida e não é anterior ao dia atual
+    if (!_isValidDate(_dateController.text)) {
+      _showErrorDialog('Por favor, insira uma data válida no formato DD/MM/AAAA');
+      return false;
+    }
+    
+    if (_isPastDate(_dateController.text)) {
+      _showErrorDialog('A data do evento não pode ser anterior ao dia de hoje');
+      return false;
+    }
+    
     return true;
   }
 
+  // Método para validar o formato da data
+  bool _isValidDate(String date) {
+    if (date.length != 10) return false;
+    
+    try {
+      final parts = date.split('/');
+      if (parts.length != 3) return false;
+      
+      final day = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final year = int.parse(parts[2]);
+      
+      // Validações básicas (você já fez a checagem de data passada em _isPastDate)
+      if (month < 1 || month > 12) return false;
+      if (day < 1 || day > 31) return false;
+      
+      // Validação específica para fevereiro e meses com 30 dias
+      if (month == 2) {
+        final isLeapYear = (year % 4 == 0) && (year % 100 != 0 || year % 400 == 0);
+        if (day > (isLeapYear ? 29 : 28)) return false;
+      } else if ([4, 6, 9, 11].contains(month)) {
+        if (day > 30) return false;
+      }
+      
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Método para verificar se a data é anterior ao dia atual
+  bool _isPastDate(String date) {
+    try {
+      final parts = date.split('/');
+      final day = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final year = int.parse(parts[2]);
+      
+      final eventDate = DateTime(year, month, day);
+      final today = DateTime.now();
+      final todayWithoutTime = DateTime(today.year, today.month, today.day);
+      
+      return eventDate.isBefore(todayWithoutTime);
+    } catch (e) {
+      return true; // Se houver erro na conversão, considera como data inválida
+    }
+  }
+
+  // Método para obter a data formatada de hoje
+  String _getTodayFormatted() {
+    final today = DateTime.now();
+    final day = today.day.toString().padLeft(2, '0');
+    final month = today.month.toString().padLeft(2, '0');
+    final year = today.year.toString();
+    return '$day/$month/$year';
+  }
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -68,6 +136,48 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         ],
       ),
     );
+  }
+
+ Future<void> _selectDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color.fromARGB(255, 211, 173, 92),
+              onPrimary: Color.fromARGB(255, 63, 39, 28),
+              onSurface: Color.fromARGB(255, 63, 39, 28),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color.fromARGB(255, 63, 39, 28),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    
+    if (picked != null) {
+      final day = picked.day.toString().padLeft(2, '0');
+      final month = picked.month.toString().padLeft(2, '0');
+      final year = picked.year.toString();
+      setState(() {
+        _dateController.text = '$day/$month/$year';
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Define a data de hoje como placeholder
+    _dateController.text = _getTodayFormatted();
   }
 
   @override
@@ -160,12 +270,18 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             TextField(
               controller: _dateController,
               style: const TextStyle(color: Colors.black87),
+              readOnly: true, // Impede digitação manual
+              onTap: _selectDate, // Abre o seletor de data ao tocar
               decoration: InputDecoration(
                 labelText: 'Data do Evento',
                 labelStyle: const TextStyle(color: Colors.black54),
                 hintText: 'DD/MM/AAAA',
                 hintStyle: const TextStyle(color: Colors.black38),
                 prefixIcon: const Icon(Icons.calendar_today, color: Colors.black54),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.calendar_month, color: Color.fromARGB(255, 211, 173, 92)),
+                  onPressed: _selectDate,
+                ),
                 focusedBorder: const UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.white, width: 2),
                 ),
@@ -173,12 +289,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   borderSide: BorderSide(color: Colors.grey.shade400),
                 ),
               ),
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
-                LengthLimitingTextInputFormatter(10),
-                _DateInputFormatter(),
-              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Data mínima: ${_getTodayFormatted()}',
+              style: const TextStyle(
+                color: Colors.black54,
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+              ),
             ),
             const SizedBox(height: 40),
             

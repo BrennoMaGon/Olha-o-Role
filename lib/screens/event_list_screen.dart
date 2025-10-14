@@ -273,7 +273,7 @@ class _EventListScreenState extends State<EventListScreen> {
           children: [
             const SizedBox(height: 4),
             Text(
-              'Data: ${event.eventDate ?? "Não definida"}',
+              '📅 Data do Evento: ${event.eventDate ?? "Não definida"}',
               style: const TextStyle(
                 color: Colors.black54,
                 fontFamily: 'Itim',
@@ -377,7 +377,7 @@ class _EventListScreenState extends State<EventListScreen> {
 
               // Seção de Itens do Evento
               const Text(
-                'Itens do Evento:',
+                '🛒 Itens do Evento:',
                 style: TextStyle(
                   fontFamily: 'Itim',
                   fontWeight: FontWeight.bold,
