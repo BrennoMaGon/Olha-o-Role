@@ -1,4 +1,4 @@
-# flutter_olha_o_role
+# olha_o_role
 
 Olha o Rolê é um Aplicativo Mobile desenvolvido em Dart, permitindo a criação e o gerenciamento de eventos de forma prática para o usuários e de forma simples, visual e interativa. 
 
