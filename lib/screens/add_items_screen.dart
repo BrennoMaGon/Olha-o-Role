@@ -1,33 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'invite_guests_screen.dart';
+import '../models/event.dart' as event_model; // Importe o modelo com um prefixo
 
-class ItemData {
-  String name;
-  int quantity;
-
-  ItemData({required this.name, required this.quantity});
-}
+// A classe ItemData não é mais necessária, usaremos o modelo 'Item' do Hive
+// class ItemData { ... }
 
 class AddItemsScreen extends StatefulWidget {
-  const AddItemsScreen({super.key});
+  final String eventId;
+  final String eventName;
+  final String eventDescription; // NOVO
+  final String eventDate;        // NOVO
+  final int peopleCount;         // NOVO
+
+  const AddItemsScreen({
+    super.key,
+    required this.eventId,
+    required this.eventName,
+    required this.eventDescription,
+    required this.eventDate,
+    required this.peopleCount,
+  });
 
   @override
   State<AddItemsScreen> createState() => _AddItemsScreenState();
 }
 
 class _AddItemsScreenState extends State<AddItemsScreen> {
-  final List<ItemData> _items = [];
+  // AGORA USAMOS A CLASSE 'Item' GERADA PELO HIVE
+  final List<event_model.Item> _items = [];
   final TextEditingController _itemController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
 
   void _addItem() {
     if (_itemController.text.isNotEmpty && _quantityController.text.isNotEmpty) {
       setState(() {
-        _items.add(ItemData(
-          name: _itemController.text,
-          quantity: int.parse(_quantityController.text),
-        ));
+        // Crie uma instância do modelo Item
+        final newItem = event_model.Item()
+          ..name = _itemController.text
+          ..quantity = int.parse(_quantityController.text);
+        _items.add(newItem);
+        
         _itemController.clear();
         _quantityController.clear();
       });
@@ -336,13 +349,21 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
             ),
             const SizedBox(height: 20),
             
-            // Botão Avançar
+            // Botão Avançar - CORRIGIDO
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const InviteGuestsScreen(),
+                    builder: (context) => InviteGuestsScreen(
+                      // Passe todos os dados recebidos E a nova lista de itens
+                      eventId: widget.eventId,
+                      eventName: widget.eventName,
+                      eventDescription: widget.eventDescription,
+                      eventDate: widget.eventDate,
+                      peopleCount: widget.peopleCount,
+                      items: _items, // NOVO: passando a lista de itens
+                    ),
                   ),
                 );
               },

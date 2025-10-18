@@ -1,5 +1,5 @@
-name: flutter_application_1
-description: "A new Flutter project."
+name: Olha_o_Role
+description: "Um app para criar eventos e momentos."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_launcher_icons: "^0.13.1"
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -40,7 +43,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  hive_generator: ^2.0.0
+  build_runner: ^2.3.3
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -50,7 +54,6 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
 # The following section is specific to Flutter packages.
 flutter:
 
@@ -70,6 +73,11 @@ flutter:
         # Se você quiser usar a versão em negrito também:
         - asset: assets/fonts/ComicNeue-Bold.ttf
           weight: 700 # 700 é o peso para negrito (bold)
+
+flutter_launcher_icons:
+    android: "launcher_icon" # Nome do ícone no Android, ou 'true' para o padrão
+    ios: true
+    image_path: "Assets/logo.jpg"
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

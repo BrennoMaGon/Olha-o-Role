@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'models/event.dart'; // Importe seus modelos
+import 'screens/event_list_screen.dart';
 import 'screens/login_screen.dart';
 
-void main() {
+void main() async {
+  // Garante que o Flutter está inicializado
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializa o Hive
+  await Hive.initFlutter();
+
+  // Registra os adaptadores gerados
+  Hive.registerAdapter(EventAdapter());
+  Hive.registerAdapter(ItemAdapter());
+
   runApp(const MyApp());
 }
 
@@ -14,7 +27,6 @@ class MyApp extends StatelessWidget {
       title: 'Olha o Rolê',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        fontFamily: 'Roboto', // Defina uma fonte padrão se desejar
       ),
       home: const LoginScreen(),
     );
