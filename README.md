@@ -106,7 +106,7 @@ Caso sejam realizadas alterações no software, documente nesta área com as res
 # **Página de destino**
 
 ![Tela de login](Assets/images/login.jpg)
-![Tela inicial](Assets/images/tela_inicial)
+![Tela inicial](Assets/images/tela_inicial.jpg)
 ![Criar evento](Assets/images/criar_evento.jpg)
 ![Adicionar itens ao evento](Assets/images/adicionar_itens_evento.jpg)
 ![Gerar link para convidados](Assets/images/adicionar_convidados.jpg)
