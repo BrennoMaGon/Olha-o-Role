@@ -72,8 +72,8 @@ Convite via link
 
 # **Estrutura do Projeto**
 
-![Estrutura de Código](assets/images/estrutura_codigo_1.jpg)
-![Estrutura de Código](asset/images/estrutura_codigo_2.jpg)
+![Estrutura de Código](Assets/images/estrutura_codigo_1.jpg)
+![Estrutura de Código](Assets/images/estrutura_codigo_2.jpg)
 
 # **Equipe de Desenvolvimento**
 
@@ -105,11 +105,11 @@ Caso sejam realizadas alterações no software, documente nesta área com as res
 
 # **Página de destino**
 
-![Tela de login](assets/images/login.jpg)
-![Tela inicial](assets/images/tela_inicial)
-![Criar evento](assets/images/criar_evento.jpg)
-![Adicionar itens ao evento](assets/images/adicionar_itens_evento.jpg)
-![Gerar link para convidados](assets/images/adicionar_convidados.jpg)
-![Link Gerado para convidados](assets/images/link_gerado_convidados.jpg)
-![Tela Inical com evento criado](assets/images/tela_inicial_com_evento.jpg)
-![Detalhes do evento criado](assets/images/detalhes_evento_criado.jpg)
+![Tela de login](Assets/images/login.jpg)
+![Tela inicial](Assets/images/tela_inicial)
+![Criar evento](Assets/images/criar_evento.jpg)
+![Adicionar itens ao evento](Assets/images/adicionar_itens_evento.jpg)
+![Gerar link para convidados](Assets/images/adicionar_convidados.jpg)
+![Link Gerado para convidados](Assets/images/link_gerado_convidados.jpg)
+![Tela Inical com evento criado](Assets/images/tela_inicial_com_evento.jpg)
+![Detalhes do evento criado](Assets/images/detalhes_evento_criado.jpg)
