@@ -87,7 +87,7 @@ Jessica Souza do Nascimento, **RA:** 2393505
 Analista de Requisitos, Testador.
 
 Júlia Martins de Toledo, **RA:** 2407220
-Consultoria, Testador.
+Consultora, Testador.
 
 # **Prazo de entrega**
 
